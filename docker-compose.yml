@@ -1,0 +1,28 @@
+version: "3.8"
+
+services:
+  mongo:
+    image: mongo:7.0
+    container_name: mongo
+    environment:
+      - MONGO_INITDB_ROOT_USERNAME=${MONGO_USERNAME}
+      - MONGO_INITDB_ROOT_PASSWORD=${MONGO_PASSWORD}
+      - MONGO_INITDB_DATABASE=${MONGO_DB_NAME}
+    ports:
+      - "${MONGO_PORT}:27017"
+    volumes:
+      - mongo_data:/data/db
+
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: backend
+    env_file: ".env"
+    ports:
+      - "${APP_PORT}:3000"
+    depends_on:
+      - mongo
+
+volumes:
+  mongo_data:
