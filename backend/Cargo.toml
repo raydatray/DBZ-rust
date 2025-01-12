@@ -12,6 +12,7 @@ mongodb = "3.1.1"
 serde = { version = "1.0.217", features = ["derive"] }
 thiserror = "2.0.9"
 tokio = { version = "1.42.0", features = ["full"] }
+tokio-cron-scheduler = { version = "0.13.0", features = ["tracing-subscriber"] }
 tower = "0.5.2"
 tracing = "0.1.41"
 tracing-subscriber = "0.3.19"

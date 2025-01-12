@@ -1,4 +1,5 @@
 pub(crate) mod practice;
+pub(crate) mod tenant;
 pub(crate) mod user;
 
 use std::env;
@@ -6,16 +7,15 @@ use std::env;
 use mongodb::{bson::doc, Client, Database};
 use tracing::info;
 
-use crate::models::user::User;
-
 pub(crate) struct DB {
     client: Client,
     database: Database,
 }
 
 impl DB {
-    const USER_COLLECTION: &'static str = "users";
     const PRACTICE_COLLECITON: &'static str = "practices";
+    const TENANT_COLLECTION: &'static str = "tenants";
+    const USER_COLLECTION: &'static str = "users";
 
     pub(crate) async fn init() -> Result<Self, anyhow::Error> {
         info!("initing DB connection");

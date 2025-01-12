@@ -2,7 +2,9 @@ use bson::{doc, oid::ObjectId};
 use mongodb::Collection;
 use tracing::debug;
 
-use super::{User, DB};
+use crate::models::user::User;
+
+use super::DB;
 
 #[derive(Clone)]
 pub(crate) struct UserRepository {

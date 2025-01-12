@@ -10,9 +10,9 @@ use thiserror::Error;
 #[derive(Debug, Serialize, Deserialize)]
 pub(crate) struct Practice {
     #[serde(rename = "_id", skip_serializing_if = "Option::is_none")]
-    id: Option<ObjectId>,
+    pub(crate) id: Option<ObjectId>,
     #[serde(with = "bson::serde_helpers::chrono_datetime_as_bson_datetime")]
-    date: DateTime<Utc>,
+    pub(crate) date: DateTime<Utc>,
     duration: usize,
     left_side: Vec<Option<ObjectId>>,
     right_side: Vec<Option<ObjectId>>,
@@ -87,11 +87,17 @@ impl Practice {
         Err(anyhow!(PracticeError::UserNotFound))
     }
 
-    /// Transfers waitlistee's on prev to the current practice
-    fn transfer_waitlist(&mut self, prev: &Practice) -> Result<(), anyhow::Error> {
+    /*
+    Transfers waitlistee's on prev to the current practice
+    Returns a vector of the id's of the transferred users
+    */
+    pub(crate) fn transfer_waitlist(&mut self, prev: &Practice) -> Result<Vec<ObjectId>, anyhow::Error> {
+        let mut transfered = Vec::new();
+
         for waitlistee in prev.left_waitlist.iter().flatten() {
             if let Some(empty_spot) = self.left_side.iter_mut().find(|spot| spot.is_none()) {
-                *empty_spot = Some(*waitlistee)
+                *empty_spot = Some(*waitlistee);
+                transfered.push(*waitlistee);
             } else {
                 return Err(anyhow!(PracticeError::WaitlistTransferFailed));
             }
@@ -99,12 +105,13 @@ impl Practice {
 
         for waitlistee in prev.right_waitlist.iter().flatten() {
             if let Some(empty_spot) = self.right_side.iter_mut().find(|spot| spot.is_none()) {
-                *empty_spot = Some(*waitlistee)
+                *empty_spot = Some(*waitlistee);
+                transfered.push(*waitlistee);
             } else {
                 return Err(anyhow!(PracticeError::WaitlistTransferFailed));
             }
         }
-        Ok(())
+        Ok(transfered)
     }
 }
 

@@ -1,4 +1,5 @@
 use bson::{doc, oid::ObjectId};
+use chrono::{Duration, Utc};
 use mongodb::{Collection, Cursor};
 
 use crate::models::practice::Practice;
@@ -29,7 +30,41 @@ impl PracticeRepository {
         Ok(practice)
     }
 
-    async fn get_all_practices(&self) -> Result<Cursor<Practice>, anyhow::Error> {
+    pub(crate) async fn get_within_next_week(&self) -> Result<Cursor<Practice>, anyhow::Error> {
+        let now = Utc::now();
+        let next_week = now + Duration::weeks(1);
+
+        let practice_cursor = self
+            .collection
+            .find(doc! {
+                "date" : {
+                    "$gte": now,
+                    "$lt" : next_week
+                }
+            })
+            .await?;
+
+        Ok(practice_cursor)
+    }
+
+    pub(crate) async fn get_previous(
+        &self,
+        curr_practice: &Practice,
+    ) -> Result<Option<Practice>, anyhow::Error> {
+        let curr_time = curr_practice.date;
+        let prev_time = curr_time - Duration::weeks(1);
+
+        let prev_practice = self
+            .collection
+            .find_one(doc! {
+                "date" : prev_time
+            })
+            .await?;
+
+        Ok(prev_practice)
+    }
+
+    async fn get_all(&self) -> Result<Cursor<Practice>, anyhow::Error> {
         let practice_cursor = self.collection.find(doc! {}).await?;
         Ok(practice_cursor)
     }

@@ -103,7 +103,7 @@ pub(crate) async fn unregister(
     if practice.is_locked() {
         return Err(ApiError {
             status: StatusCode::BAD_REQUEST,
-            message: "Practice has been locked".to_string(),
+            message: "Practice is locked".to_string(),
         });
     }
 
